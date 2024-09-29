@@ -1,0 +1,3 @@
+GET / RANDOM_STRHTTP/1.1
+Host: example.com
+

@@ -1,0 +1,10 @@
+title = "Redroid"
+author = "P1umH0"
+difficulty = "Hard"
+flag = ["SUSCTF{u_4r3_m4573r_0f_4ndr01d!}","susctf{u_4r3_m4573r_0f_4ndr01d!}","u_4r3_m4573r_0f_4ndr01d!"]
+description = """
+题目要求使用安卓13/14系统真机(可能算个提示~
+"""
+[attachments]
+path = "redroid.zip"
+name = "redroid.zip"

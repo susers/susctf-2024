@@ -1,0 +1,14 @@
+title = "sign_in_sys"
+author = "rec"
+difficulty = "hard"
+flag = "susctf{[GUID]}"
+
+description = """
+Let me tell you a story about sis
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = ["build/src/task.py", "build/src/utils.py"]

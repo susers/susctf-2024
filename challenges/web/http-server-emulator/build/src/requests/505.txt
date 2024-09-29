@@ -1,0 +1,3 @@
+GET / HTTP/RANDOM_INT
+Host: example.com
+

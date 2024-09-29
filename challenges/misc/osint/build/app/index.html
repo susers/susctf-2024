@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-cn">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SUSCTF Task</title>
+        <link rel="stylesheet" href="/static/water.min.css" />
+        <script src="" type="module"></script>
+    </head>
+
+    <body>
+        <h3>osint signin</h3>
+        <img src="static/pic.jpg" />
+        <h3>提交答案</h3>
+        <blockquote>点击“提交”按钮后需要等待一段时间</blockquote>
+        <form>
+            <label for="token">
+                队伍 token
+                <a onclick="document.getElementById('dialog').showModal()"
+                    >这是什么</a
+                >
+            </label>
+            <input id="token" type="text" placeholder="请输入队伍 token" />
+            <label for="a1">航班号</label>
+
+            <input id="a1" type="text" placeholder="请输入航班号（大写）" />
+            <label for="a2">河流名称</label>
+            <input id="a2" type="text" placeholder="请输入图片中河流的名称" />
+            <button id="submit">提交</button>
+            <div id="rate"></div>
+            <progress id="progress" value="0" max="100" hidden>0%</progress>
+            <strong id="result"></strong>
+        </form>
+        <dialog id="dialog" style="max-width: 500px">
+            <header>关于队伍 token</header>
+            <form method="dialog">
+                <p>
+                    队伍 token 由队伍 id 及被 Base64 编码的 ed25519
+                    签名组成，下面是一个合法的队伍 token 示例：
+                </p>
+                <code
+                    >1201:HCdjp352NcQoL/4gS8RP3xRt5B9xX2V4m2UeoqfM2dxcLrI5FiYQ7HC9pqreG+tudWjYJf0atzQhhAKyYDKsCg==</code
+                >
+                <blockquote style="font-style: normal">
+                    ⚠️ 队伍 token 用于证明你的身份，请不要向其他人提供
+                </blockquote>
+                <blockquote style="font-style: normal">
+                    💡 你可以在
+                    <a
+                        href="https://ctf.seusus.com/games/1/challenges"
+                        target="_blank"
+                        >比赛页面</a
+                    >
+                    右侧找到你的队伍 token 🔑
+                </blockquote>
+                <menu style="float: right">
+                    <button value="ok">OK</button>
+                </menu>
+            </form>
+        </dialog>
+        <script type="module">
+            import {
+                caculateProof,
+                submitAnswer,
+            } from "/static/susctf-helper.js";
+
+            const button = document.getElementById("submit");
+            const progress = document.getElementById("progress");
+            const rate = document.getElementById("rate");
+            const result = document.getElementById("result");
+
+            button.addEventListener("click", getFlag);
+            async function getFlag() {
+                result.innerText = "";
+                button.disabled = true;
+                button.innerText = "提交中...";
+                const answer = {
+                    a1: document.getElementById("a1").value,
+                    a2: document.getElementById("a2").value,
+                };
+                const token = document.getElementById("token").value;
+                const beginTime = new Date().getTime();
+                const proof = await caculateProof(
+                    answer,
+                    token,
+                    (v) => {
+                        if (v == -1) {
+                            progress.hidden = true;
+                        } else {
+                            progress.value = v * 100;
+                        }
+                    },
+                    (v) => {
+                        rate.innerText = "Rate: " + v + "k hashes/s";
+                    },
+                );
+                console.log(proof);
+                const elapsedTime = new Date().getTime() - beginTime;
+                rate.innerText = "Time: " + elapsedTime + "ms";
+                try {
+                    const req = await submitAnswer(answer, proof, token);
+                    if (req.data) {
+                        result.innerText = req.data;
+                        result.style.color = "green";
+                    } else {
+                        result.innerText = req.error;
+                        result.style.color = "red";
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    button.disabled = false;
+                    button.innerText = "提交";
+                    progress.hidden = true;
+                }
+            }
+        </script>
+    </body>
+</html>

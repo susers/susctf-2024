@@ -1,0 +1,16 @@
+title = "goodwell"
+author = "MaPl"
+difficulty = "Medium"
+flag = "susctf{[GUID]}"
+
+description = """
+GCM: Goodwell Crypro Mode
+
+greetings and goodwell.
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = "build/src/task.py"

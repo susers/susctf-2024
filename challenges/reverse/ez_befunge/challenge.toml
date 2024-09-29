@@ -1,0 +1,13 @@
+title = "ez_befunge"
+author = "U3sug1Er1i"
+
+difficulty = "Easy" 
+
+flag = "susctf{B@funge_i5_3asy!!}"
+
+description = """
+Do you know befunge? I think it's very simple for you.
+"""
+
+[attachments]
+path = "ez_befunge.bf"

@@ -1,0 +1,18 @@
+title = "noscript"
+author = "135e2"
+difficulty = "Easy"
+flag = "susctf{n0_scr1p7_4_0Id_5cho0l3rs_[TEAM_HASH]}"
+
+description = """
+... in the good-old C we trust.
+
+别看了，不是让你做 pwn 的 😡
+"""
+
+[attachments]
+path = "build/**"
+
+[container]
+port = 8080
+memory = "64" # unit: MiB
+storage = "640" # unit: MiB

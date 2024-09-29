@@ -1,0 +1,3 @@
+GET / HTTP/1.1
+Host: example.com
+Content-length: RANDOM_INTRANDOM_INTRANDOM_INT

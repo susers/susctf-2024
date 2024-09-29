@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Note taking site</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .note-list {
+        overflow-y: auto;
+        margin-bottom: 20px;
+      }
+
+      .note-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+      .note-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+      }
+
+      .share-btn {
+        position: relative;
+        margin-top: 8px;
+        padding: 6px 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container mt-5">
+      <h1 class="mb-4">Note taking in ease!</h1>
+
+      <form id="noteForm" class="mb-4">
+        <div class="mb-3">
+          <label for="noteTitle" class="form-label">Title</label>
+          <input
+            type="text"
+            class="form-control"
+            id="noteTitle"
+            placeholder="Enter note title"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="noteContent" class="form-label"
+            >Write your note here</label
+          >
+          <textarea
+            class="form-control"
+            id="noteContent"
+            rows="3"
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Note</button>
+      </form>
+
+      <div class="note-list">
+        <!-- Notes will be added here -->
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const noteListDiv = document.querySelector(".note-list");
+
+      document.addEventListener("DOMContentLoaded", function () {
+        <% if (files) { %>
+        // Load existing notes
+        const fileNames = JSON.parse(atob("<%= files %>"));
+        for(i = 0; i < fileNames.length; i++){
+          fileName = fileNames[i];
+          fetch(`/<%= id %>/${fileName}`)
+            .then((response) => response.text())
+            .then((content) => addNoteToList({title: fileName, content}));
+        }
+        <% } %>
+
+        // View other's note
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const title = urlParams.get("title");
+        if (id && title) {
+          fetch(`/${id}/${title}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Note not found");
+              }
+              return response.text();
+            })
+            .catch((err) => {
+              alert(err);
+              throw err;
+            })
+            .then((content) => addNoteToList({ title: `${id}'s note: ${title}`, content }))
+            .catch(()=>{});
+        }
+
+        // Add new note
+        document
+          .getElementById("noteForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            const noteTitle = document.getElementById("noteTitle").value;
+            const noteContent = document.getElementById("noteContent").value;
+            if (noteContent.trim() !== "") {
+              fetch("/add_note", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ title: noteTitle, content: noteContent }),
+                credentials: "include",
+              })
+                .then(_ => document.location.reload());
+            }
+          });
+
+        function addNoteToList(note) {
+          const noteElement = document.createElement('div');
+          noteElement.className = 'note-item';
+
+          const titleElement = document.createElement('div');
+          titleElement.className = 'note-title';
+          titleElement.textContent = note.title;
+
+          const contentElement = document.createElement('div');
+          contentElement.textContent = note.content;
+
+          const shareButton = document.createElement('button');
+          shareButton.className = 'btn btn-secondary share-btn';
+          shareButton.textContent = 'Share';
+
+          shareButton.addEventListener('click', function() {
+            shareNote(note.title);
+          });
+
+          noteElement.appendChild(titleElement);
+          noteElement.appendChild(contentElement);
+          noteElement.appendChild(shareButton);
+          noteListDiv.appendChild(noteElement);
+        }
+
+        function shareNote(noteTitle) {
+          const userId = document.cookie.split('; ').find(row => row.startsWith('uid=')).split('=')[1];
+          fetch('/share', {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: userId, title: noteTitle }),
+              credentials: "include"
+            }).then(response => {
+              if (response.ok) {
+                alert('Note shared successfully!');
+              } else {
+                alert('Failed to share the note.');
+              }
+            });
+        }
+      });
+    </script>
+  </body>
+</html>

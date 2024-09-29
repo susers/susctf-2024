@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Judge</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <nav>
+        <span>SUSCTF 在线判题系统</span>
+        <span>
+            <button id="run">运行</button>
+            <button id="submit" class="prime">提交</button>
+        </span>
+    </nav>
+    <main class="span-container-x">
+        <div class="span-a">
+            <div class="card">
+                <span class="card-head">题目描述</span>
+                <div id="info" class="card-body"></div>
+            </div>
+        </div>
+        <div class="span-b" style="width: 60%;">
+            <div class="span-container-y">
+                <div class="span-a" style="height: 70%;">
+                    <div class="card">
+                        <span class="card-head">代码</span>
+                        <div id="container" class="card-body" style="overflow: hidden;">
+                            <div id="editor"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span-b">
+                    <div class="card">
+                        <span class="card-head">测试结果</span>
+                        <div class="card-body" id="result" style="overflow: hidden;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="importmap">
+        {
+            "imports":{
+                "@monaco-editor/loader":"https://cdn.jsdelivr.net/npm/@monaco-editor/loader/+esm",
+                "marked":"https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
+                "@xterm/xterm": "https://cdn.jsdelivr.net/npm/@xterm/xterm/+esm",
+                "@xterm/addon-fit": "https://cdn.jsdelivr.net/npm/@xterm/addon-fit/+esm"
+            }
+        }
+    </script>
+    <script>
+        async function fetchData() {
+            const info_response = await fetch('/static/task.md')
+            const info = await info_response.text()
+            const code_response = await fetch('/static/task.cpp')
+            const code = await code_response.text()
+            return { info, code }
+        }
+        async function postData(code) {
+            const response = await fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code })
+            })
+            return await response.json()
+        }
+    </script>
+    <script type="module">
+        import loader from '@monaco-editor/loader'
+        import { marked } from 'marked'
+        import { Terminal } from '@xterm/xterm'
+        import { FitAddon } from '@xterm/addon-fit'
+
+        let editor
+        loader.config({ "vs/nls": { availableLanguages: { "*": "zh-cn" }} })
+        fetchData().then(({ info, code }) => {
+            loader.init().then((monacoInstance) => {
+                editor = monacoInstance.editor.create(document.getElementById('editor'), {
+                    value: localStorage.getItem('code') ?? code,
+                    language: 'cpp',
+                    automaticLayout: true
+                })
+                editor.onDidChangeModelContent(() => {
+                    localStorage.setItem('code', editor.getValue())
+                })
+                editor.addAction({
+                    id: "susctf-action-reset",
+                    label: "重置代码",
+                    contextMenuGroupId: "navigation",
+                    contextMenuOrder: 1.5,
+                    run() {
+                        editor.pushUndoStop()
+                        editor.executeEdits('name-of-edit', [{
+                            range: editor.getModel().getFullModelRange(),
+                            text: code
+                        }])
+                        editor.pushUndoStop()
+                    }
+                })
+                editor.focus()
+            })
+            document.getElementById('info').innerHTML = marked.parse(info)
+        })
+
+        const terminal = new Terminal({
+            convertEol: false,
+            disableStdin: true,
+            rows: 1,
+            cols: 10,
+            theme: {
+                background: '#fff',
+                foreground: '#000',
+            }
+        })
+        const fitAddon = new FitAddon()
+        terminal.loadAddon(fitAddon)
+        terminal.open(document.getElementById('result'))
+        fitAddon.fit()
+        terminal.write('=== 运行或提交后显示 ===\r\n')
+
+        document.getElementById('run').addEventListener('click', () => {
+            alert('不许运行')
+        })
+
+        const button = document.getElementById('submit')
+        button.addEventListener('click', () => {
+            button.setAttribute('disabled', 'disabled')
+            terminal.clear()
+            terminal.write('=== 运行中 ===\r\n')
+            postData(editor.getValue()).then((data) => {
+                terminal.clear()
+                terminal.write(data.data + '\r\n')
+                button.removeAttribute('disabled')
+            })
+        })        
+    </script>
+</body>
+</html>

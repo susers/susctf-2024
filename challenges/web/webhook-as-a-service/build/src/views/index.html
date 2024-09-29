@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Webhook as a service</title>
+    </head>
+    <body>
+        <header>
+            <h1>Webhook as a service</h1>
+            <aside>... in the good old style we love.</aside>
+        </header>
+        <h2>Webhook Result</h2>
+        {{ if (ne .result "<nil>") }}
+        <p>
+            {{ .result }}
+        </p>
+        {{ else }}
+        <p>GET or POST /webhook, then refresh page to view results.</p>
+        {{ end }}
+        <h2>Options</h2>
+        <form method="post" action="/option" target="hiddenFrame">
+            <label for="options">on what may interest you: </label>
+            <select id="option" name="option">
+                <option value="URLParams">Params</option>
+                <option value="Request.Header">Headers</option>
+                <option value="FormValues">Form values</option>
+            </select>
+            <button type="reset" onclick="document.forms[0].submit()">Set</button>
+            <button type="reset" id="refresh">Refresh</button>
+        </form>
+        <!-- the hidden beauty lol -->
+        <footer>
+            <p id="hint">Built upon Golang & <a href="https://www.iris-go.com">Iris</a>.</p>
+        </footer>
+        <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+        <!-- 👿 javascript -->
+        <script>
+          const button = document.querySelector("button[id='refresh']");
+          button.addEventListener("click", () => {
+            window.location.reload();
+          });
+        </script>
+        <style>
+        footer {
+          text-align: center;
+          padding: 5px;
+        }
+</style>
+    </body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; sandbox; frame-ancestors 'none'; trusted-types 'none'; script-src-attr 'none'; script-src 'unsafe-eval' 'sha256-DyC2Fkwam1ys1PvOkpd6C+Kc/LEpjGdeC1akbDvx374=' 'sha256-CQelXc+T/1CLuznoKQKc1AKCLlooAPlfhgJHPd4Oh+M=';"/>
+    <title>VMProtect</title>
+</head>
+<body>
+    <p>
+        输入flag以获得flag
+        <input type="text"/>
+        <button>check</button>
+    </p>
+    <p id="result"></p>
+    <script>
+        function base64ToBuffer(base64) {
+            const binString = atob(base64);
+            return Uint8Array.from(binString, (m) => m.codePointAt(0));
+        }
+        function vm(memory, ...context) {
+            let ip = 0
+            const stack = []
+            const vars = new Map()
+            vars.set(0, globalThis)
+            while (memory.length > ip) {
+                const opcode = memory[ip]
+                if (opcode === 0) { // RETURN
+                    break
+                } else if (opcode === 1) { // PUSH_INT
+                    let value = memory[ip + 1]
+                    value = (value << 8) | memory[ip + 2]
+                    value = (value << 8) | memory[ip + 3]
+                    value = (value << 8) | memory[ip + 4]
+                    stack.push(value)
+                    ip += 5
+                } else if (opcode === 2) { // PUSH_STR
+                    let length = (memory[ip + 1] << 8) | memory[ip + 2]
+                    const decoder = new TextDecoder("utf-8")
+                    const value = decoder.decode(new Uint8Array(memory.buffer, ip + 3, length))
+                    stack.push(value)
+                    ip += 3 + length
+                } else if (opcode === 3) { // BOP
+                    const opType = {
+                        0: "+", 1: "-", 2: "*", 3: "/",
+                        4: "%",
+                        5: "==", 6: "!=", 7: "<", 8: ">", 9: "<=", 10: ">=",
+                        11: "&&", 12: "||",
+                        14: "<<", 15: ">>",
+                        16: "&", 17: "|", 18: "^",
+                        19: "."
+                    }[memory[ip + 1]]
+                    const realOp = {
+                        "+": (a, b) => a + b, "-": (a, b) => a - b, "*": (a, b) => a * b, "/": (a, b) => a / b,
+                        "%": (a, b) => a % b,
+                        "==": (a, b) => a === b, "!=": (a, b) => a !== b, "<": (a, b) => a < b, ">": (a, b) => a > b, "<=": (a, b) => a <= b, ">=": (a, b) => a >= b,
+                        "&&": (a, b) => a && b, "||": (a, b) => a || b,
+                        "<<": (a, b) => a << b, ">>": (a, b) => a >> b,
+                        "&": (a, b) => a & b, "|": (a, b) => a | b, "^": (a, b) => a ^ b,
+                        ".": (a, b) => a[b]
+                    }[opType]
+                    const b = stack.pop()
+                    const a = stack.pop()
+                    const value = realOp(a, b)
+                    stack.push(value)
+                    ip += 2
+                } else if (opcode === 4) { // UOP
+                    const opType = {
+                        1: "-", 2: "~", 3: "!"
+                    }[memory[ip + 1]]
+                    const realOp = {
+                        "-": a => -a, "~": a => ~a, "!": a => !a
+                    }[opType]
+                    const a = stack.pop()
+                    const value = realOp(a)
+                    stack.push(value)
+                    ip += 2
+                } else if (opcode === 5) { // CALL
+                    const callThis = vars.get(memory[ip + 1])
+                    const argCount = memory[ip +2]
+                    const args = []
+                    for (let i = 0; i < argCount; i++) {
+                        args.unshift(stack.pop())
+                    }
+                    const func = stack.pop()
+                    const result = Reflect.apply(func, callThis, args)
+                    stack.push(result)
+                    ip += 3
+                }   else if (opcode === 6) { // NEW
+                        const argCount = memory[ip + 1]
+                        const args = []
+                        for (let i = 0; i < argCount; i++) {
+                            args.unshift(stack.pop())
+                        }
+                        const func = stack.pop()
+                        const result = Reflect.construct(func, args)
+                        stack.push(result)
+                        ip += 2
+                } else if (opcode === 7) { // JUMP
+                    const old_ip = ip
+                    ip = stack.pop()
+                    stack.push(old_ip)
+                } else if (opcode === 8) { // JUMP_IF
+                    const new_ip = stack.pop()
+                    const condition = stack.pop()
+                    if (condition) {
+                        const old_ip = ip
+                        ip = new_ip
+                        stack.push(old_ip)
+                    } else {
+                        ip += 1
+                    }
+                } else if (opcode === 9) { // DUP
+                    const value = stack[stack.length - 1]
+                    stack.push(value)
+                    ip += 1
+                } else if (opcode === 10) { // DROP
+                    stack.pop()
+                    ip += 1
+                } else if (opcode === 11) { // SET_VAR
+                    const id = memory[ip + 1]
+                    const value = stack.pop()
+                    vars.set(id, value)
+                    ip += 2
+                } else if (opcode === 12) { // GET_VAR
+                    const id = memory[ip + 1]
+                    const value = vars.get(id)
+                    stack.push(value)
+                    ip += 2
+                } else if (opcode === 13) { // CONTEXT
+                    const idx = stack.pop()
+                    const value = context[idx]
+                    stack.push(value)
+                    ip += 1
+                } else {
+                    throw new Error(`Unknown opcode ${opcode}`)
+                }
+            }
+            if (stack.length) {
+                return stack.pop()
+            }
+        }
+        console.clear()
+    </script>
+    <script>
+        (function(addEventListener, setInterval, document, vm, base64ToBuffer) {
+        const protector = base64ToBuffer("AQAAAAANAgAHY3RybEtleQMTAQAAAAANAgAIc2hpZnRLZXkDEwMLAQAAAAANAgAHa2V5Q29kZQMTAQAAAEkDBQMLAQAAAAANAgAGYWx0S2V5AxMDDAEAAAAADQIAB2tleUNvZGUDEwEAAAB7AwUDDAEAAAAADQIABHR5cGUDEwIAC2NvbnRleHRtZW51AwUDDAEAAACdCAEAAADDBwoBAAAAAA0JCwECAA5wcmV2ZW50RGVmYXVsdAMTBQEACgH/////Cg==")
+        addEventListener("keydown", vm.bind(null, protector));
+        addEventListener("contextmenu", vm.bind(null, protector));
+        const watchdog = base64ToBuffer("DAAJCwECAApzZXRUaW1lb3V0AxMMAAIACEZ1bmN0aW9uAxMJCwICAAtjb25zdHJ1Y3RvcgMTAgAIZGVidWdnZXIFAgEJCwICAARiaW5kAxMCAAlfX251bGxzdHIJCwMCAAVtYXRjaAMTAgABQAUDAQUCAQEAAAAABQECCgwAAgAERGF0ZQMTBgALAQwAAgAHUmVmbGVjdAMTCQsCAgADc2V0AxMMAAIADl9fc3VzY3RmX3RpbWVyDAEFAgMKDAAJCwICAApzZXRUaW1lb3V0AxMMAAIACEZ1bmN0aW9uAxMJCwMCAAtjb25zdHJ1Y3RvcgMTAgAIZGVidWdnZXIFAwEJCwMCAARiaW5kAxMCAAlfX251bGxzdHIJCwQCAAVtYXRjaAMTAgABQAUEAQUDAQEAAAAABQICCg==")
+        setInterval(vm.bind(null, watchdog), 1000);
+        const superVM = vm.bind(null, base64ToBuffer("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"))
+        const checker = superVM.bind(null, base64ToBuffer("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"))
+        document.querySelector("button").addEventListener("click", checker)
+        })(addEventListener, setInterval, document, vm, base64ToBuffer)
+    </script>
+</body>
+</html>

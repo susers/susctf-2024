@@ -1,0 +1,14 @@
+title = "RSA加密教学"
+author = "MaPl"
+difficulty = "Easy"
+flag = "susctf{[GUID]}"
+
+description = """
+本教程包括RSA公钥生成和加密两部分。
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = "build/src/task.py"

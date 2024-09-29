@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Vote *for* flag</title>
+
+    <link
+      rel="stylesheet"
+      href="/static/pico.min.css"
+    />
+  </head>
+
+  <body>
+    <header class="container">
+      <hgroup>
+        <h1>Vote for flag</h1>
+        <p>Only need votes from 256 <code>/8</code> CIDRs. Protected by SUS PoW™.</p>
+      </hgroup>
+
+      <section id="progress">
+        <h2>Vote Progress: {{ voted_cidrs }} / 256</h2>
+        <progress id="progress-1" value="{{ voted_cidrs }}" max="256"></progress>
+      </section>
+
+      <section id="vote">
+        <p>Your IP address: <code>{{ ip }}</code>, CIDR: <code>{{ cidr }}.0.0.0/8</code></p>
+        <button id="vote-button" {% if is_voted %}disabled{% endif %}>{% if is_voted %}Already Voted{% else %}Vote{% endif %}</button>
+        <span id="vote-info"></span>
+      </section>
+
+      {% if voted_cidrs == 256 %}
+      <section id="flag">
+        <h2>Flag</h2>
+        <p><code>{{ flag }}</code></p>
+      </section>
+      {% endif %}
+
+      <script type="module">
+        import { calculateProof } from "/static/helper.js";
+
+        const token = "{{ token }}"
+        const ip = "{{ ip }}"
+
+        const button = document.getElementById("vote-button")
+        const info = document.getElementById("vote-info")
+        
+        button.addEventListener("click", async () => {
+            if (button.disabled) {
+                return
+            }
+
+            button.disabled = true
+            button.innerText = "Voting"
+            info.innerText = "Starting PoW Worker..."
+
+            const proof = await calculateProof(ip, token, (v) => {
+                if (v == -1) {
+                    info.innerText = ""
+                } else {
+                    info.innerText = v
+                }
+            })
+
+            try {
+                fetch("/vote", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        proof: proof
+                    })
+                }).then(async (res) => {
+                    const json = await res.json()
+                    if (json.success) {
+                        button.innerText = "Already Voted"
+                        info.innerText = "Voted successfully"
+                    } else {
+                        button.disabled = false
+                        button.innerText = "Vote"
+                        info.innerText = res.error
+                    }
+                })
+            } catch (e) {
+                button.disabled = false
+                button.innerText = "Vote"
+                info.innerText = "error"
+            }
+        })
+
+    </script>
+
+  </body>
+</html>

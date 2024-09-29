@@ -1,0 +1,13 @@
+title = "webhook as a service"
+author = "135e2"
+difficulty = "Easy"
+flag = "susctf{g0_f1nd_7he_1fi_[TEAM_HASH]}"
+
+description = """
+还在Go，还在Go 😠
+"""
+
+[container]
+port = 8080
+memory = "64" # unit: MiB
+storage = "256" # unit: MiB

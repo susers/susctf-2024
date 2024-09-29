@@ -1,0 +1,12 @@
+title = "ezvm"
+author = "MaPl"
+difficulty = "Easy"
+flag = "susctf{e55adb47-76fb-4e44-ac01-d537129f1c90}"
+
+description = """
+输入正确的 flag 即可获得 flag, 快来试试吧
+"""
+
+[attachments]
+path = "task.html"
+name = "task.zip"

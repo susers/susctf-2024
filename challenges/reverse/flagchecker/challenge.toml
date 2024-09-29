@@ -1,0 +1,12 @@
+title = "归零者密码系统"
+author = "MaPl"
+difficulty = "Easy"
+flag = "susctf{3UFbspfl}"
+
+description = """
+经过全新设计的智能密码系统
+"""
+
+[attachments]
+path = "task.html"
+name = "task.zip"

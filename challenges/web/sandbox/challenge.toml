@@ -1,0 +1,18 @@
+title = "Another Sandbox"
+author = "idawnlight"
+difficulty = "Medium"
+category = "Web"
+flag = "susctf{0h_my_py7h0n_[TEAM_HASH]}"
+
+description = """
+yet another sandbox
+"""
+
+[container]
+port = 8000
+memory = 128
+storage = 256
+
+[attachments]
+path = "build/**"
+name = "sandbox.zip"

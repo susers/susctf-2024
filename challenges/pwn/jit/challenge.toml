@@ -1,0 +1,14 @@
+title = "Just In Time"
+author = "MaPl"
+difficulty = "Medium"
+flag = "susctf{[GUID]}"
+
+description = """
+为了让 Python 跑得更快，我们需要使用 JIT
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = "build/src/task.py"

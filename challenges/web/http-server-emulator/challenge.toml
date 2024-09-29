@@ -1,0 +1,13 @@
+title = "http server emulator"
+author = "135e2"
+difficulty = "Easy"
+flag = "susctf{R3sp_1ike_4_pr0_[TEAM_HASH]}"
+
+description = """
+你说的对，但是前面忘了，后面忘了。
+
+总之你现在是nginx。
+"""
+
+[container]
+port = 8080

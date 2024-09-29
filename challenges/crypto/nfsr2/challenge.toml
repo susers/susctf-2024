@@ -1,0 +1,14 @@
+title = "nfsr2"
+author = "rec"
+difficulty = "medium"
+flag = "susctf{[GUID]}"
+
+description = """
+nfsr part two, good luck
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = ["build/src/task.py", "build/src/utils.py"]

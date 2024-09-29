@@ -1,0 +1,18 @@
+title = "note taking 1"
+author = "135e2"
+difficulty = "Easy"
+category = "Web"
+flag = "susctf{3asy_p3a5y_xs5_[TEAM_HASH]}"
+
+description = """
+The not-so-new note taking system, just like any other CTF.
+"""
+
+[attachments]
+path = "build/**"
+
+[container]
+port = 3000
+# wtf chrome in it
+memory = 768
+storage = 512

@@ -1,0 +1,12 @@
+title = "osint"
+author = "lethephyr"
+difficulty = "Easy"
+flag = "susctf{[GUID]}"
+
+description = """
+真正的签到！
+"""
+
+[container]
+port = 8001
+

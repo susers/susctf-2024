@@ -1,0 +1,46 @@
+title = "sustore"
+author = "81"
+
+# 难度可选 "Easy", "Medium", "Hard"，~~其实填什么都行~~
+difficulty = "Hard" 
+
+# flag 设置，容器题会作为模板字符串
+flag = "susctf{[GUID]}"
+
+# 如果你打算设置多个flag，注意**动态容器**题目不可以多个！
+# flag = ["susctf{flag1}", "susctf{flag2}"]
+
+# 以下是题目描述，出题人和难度信息会自动追加
+description = """
+Welcome to the SUSCTF Secret Trading Store.
+"""
+
+# 题目类别不需要手动指定，除非你想在 challenges/web 文件夹上传一个 misc 题目
+# category = "Misc" # "Misc", "Crypto", "Pwn", "Web", "Reverse"
+
+# 如果没有下面这个[container]会被判定为**静态附件题目**
+# 有的话就会自动设置为**动态容器题目**
+[container]
+port = 9999
+
+# 可选项，可以删掉用默认值
+memory = "64" # unit: MiB
+storage = "256" # unit: MiB
+
+# 如果要制作**静态容器**题目（不使用 flag 模板的容器）设置这个为 true
+# 动态 flag 的环境变量名固定为 GZCTF_FLAG , 参考[GZCTF官方说明](https://docs.ctf.gzti.me/zh/guide/dynamic-flag)
+# static = false
+
+# 可选项，控制附件行为
+[attachments]
+# 下面这里指打包 attachments/** (支持通配符) 到 attachments.zip
+path = "attachments/**"
+name = "attachments.zip"
+
+# 或者多个 path，请注意zip是按照题目目录作为根目录
+# path = ["attachments/*.py", "build/Dockerfile"]
+
+# 如果你打算上传打包好的附件可以设置 path 为 .zip 结尾的字符串
+# 这里将题目目录下的 task.zip 上传为 task.zip
+# path = "task.zip"
+# name = "task.zip"

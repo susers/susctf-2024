@@ -1,0 +1,16 @@
+title = "vote now"
+author = "idawnlight"
+difficulty = "Easy"
+category = "Web"
+flag = "susctf{a_l1ttl3_w45m_[TEAM_HASH]}"
+
+description = """
+Vote then flag.
+
+NOTE: due to some technical issues, the `remote_addr` can't be retrieved correctly. But you should know sometimes it's not the only value that matters.
+"""
+
+[container]
+port = 9000
+memory = 128 # unit: MiB
+storage = 256

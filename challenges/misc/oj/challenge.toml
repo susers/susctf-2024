@@ -1,0 +1,14 @@
+title = "Orange Juice"
+author = "MaPl"
+difficulty = "Easy"
+flag = "susctf{[GUID]}"
+
+description = """
+    你甚至可以在CTF竞赛做算法题
+"""
+
+[container]
+port = 8001
+cpu = 5
+memory = 128
+storage = 512

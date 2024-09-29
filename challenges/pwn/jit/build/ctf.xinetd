@@ -1,0 +1,17 @@
+service ctf
+{
+    disable = no
+    socket_type = stream
+    protocol    = tcp
+    wait        = no
+    type        = UNLISTED
+    port        = 9999
+    bind        = 0.0.0.0
+    server      = /usr/bin/python3
+    user        = ctf
+    group       = ctf
+    server_args = -u /home/ctf/task.py
+    banner_fail = /etc/banner_fail
+    per_source	= 40 # the maximum instances of this service per source IP address
+    rlimit_cpu	= 60 # the maximum number of CPU seconds that the service may use
+}

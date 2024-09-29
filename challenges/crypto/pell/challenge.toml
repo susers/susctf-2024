@@ -1,0 +1,11 @@
+title = "Pell"
+author = "MaPl"
+difficulty = "Easy"
+flag = "susctf{[GUID]}"
+
+description = """
+简单的方程，答案有多组，答出一组即可。
+"""
+
+[container]
+port = 8001

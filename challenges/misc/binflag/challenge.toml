@@ -1,0 +1,12 @@
+title = "/bin/flag"
+author = "MaPl / 135e2"
+difficulty = "Easy"
+flag = "susctf{w0w_u_4re_QR_expert}"
+
+description = """
+坏掉的二维码不要扔，后面忘了。
+"""
+
+[attachments]
+path = "task.png"
+name = "task.zip"

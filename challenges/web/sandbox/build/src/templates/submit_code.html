@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Sandbox</title>
+
+    <link
+      rel="stylesheet"
+      href="/static/pico.min.css"
+    />
+  </head>
+
+  <body>
+    <header class="container">
+      <hgroup>
+        <h1>PHP Sandbox</h1>
+        <h2>id: {{ id }}</h2>
+      </hgroup>
+
+      <section>
+        <form method="post">
+          <textarea name="code" rows="10"><?php echo "Hello World";</textarea>
+          <button type="submit">Submit</button>
+        </form>
+      </section>
+
+  </body>
+</html>

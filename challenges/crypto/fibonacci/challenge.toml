@@ -1,0 +1,14 @@
+title = "fibonacci"
+author = "MaPl"
+difficulty = "Medium"
+flag = "susctf{[GUID]}"
+
+description = """
+斐波那契数列是指这样一个数列：1，1，2，3，5，8，13，21，34，55，89……这个数列从第3项开始，每一项都等于前两项之和。
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = "build/src/task.py"

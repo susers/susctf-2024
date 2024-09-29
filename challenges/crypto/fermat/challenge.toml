@@ -1,0 +1,14 @@
+title = "fermat"
+author = "MaPl"
+difficulty = "Easy"
+flag = "susctf{[GUID]}"
+
+description = """
+费马在数论领域中的成果是巨大的，其中主要有：费马大定理、费马小定理、费马数和费马平方和定理等。
+"""
+
+[container]
+port = 9999
+
+[attachments]
+path = "build/src/task.py"

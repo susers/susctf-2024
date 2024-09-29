@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>归零者密码系统</title>
+    <style>
+        code {
+            display: block;
+            padding: 1em;
+            font-family: "Lucida Console", "Menlo", "Monaco", "Courier", monospace;
+            white-space: pre;
+            & p {
+                margin: 0;
+                padding: 0 0 4px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p>“优秀的加密算法应该主动拒绝加密那些敏感信息”，MaPl说，“我设计的这个密码系统就可以让机密信息在反复加密十六次后变成0。”</p>
+        <p>“你可以用这题的flag试一试”，ta补充道，“唔，不过你得每次告诉它还剩几轮。”</p>
+        <!--
+            <p>“...好吧，确实得根据flag来生成初始向量才能实现这个效果。”</p>
+        -->
+    </div>
+    <div>
+        <p>
+            <input type="text" name="输入flag" id="flag" placeholder="在这里输入flag...">
+            <button onclick="check()">try</button>
+        </p>
+        <code id="status" style="color: gray;"></code>
+    </div>
+    <script>
+        const domStatus = document.getElementById('status')
+        const domFlag = document.getElementById('flag')
+        function log(msg) {
+            const domNewElement = document.createElement('p')
+            domNewElement.innerHTML = msg
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    domStatus.appendChild(domNewElement)
+                    resolve()
+                }, 100)
+            })
+        }
+        async function check() {
+            domStatus.innerText = ''
+            const strFlag = domFlag.value
+            if (strFlag.length !== 16) {
+                await log('<a style="color: red;">[warn] flag length must be 16!</a>')
+            }
+            const objEncoder = new TextEncoder('utf8')
+            const u8Flag = new Uint8Array(16)
+            u8Flag.set(objEncoder.encode(strFlag).slice(0, 16))
+            const u8Key = objEncoder.encode('SUSCTF-f8dbLiqwQ')
+            const u8IV = new Uint8Array([245, 45, 142, 82, 51, 6, 146, 188, 1, 24, 175, 114, 56, 69, 15, 205])
+            const toHexString = arr => Array.from(arr, i => i.toString(16).padStart(2, "0").toUpperCase()).join(" ")
+            await log('--------[input]----------')
+            await log(`  flag: <a style="color: brown;">${toHexString(u8Flag)}</a>`)
+            await log(`    iv: <a style="color: gold;">${toHexString(u8IV)}</a>`)
+            await log(`   key: <a style="color: blue;">${toHexString(u8Key)}</a>`)
+            await log('initailize...')
+            const wasm = await WebAssembly.instantiateStreaming(fetch('data:application/wasm;base64,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'))
+            const { init, encrypt, memory } = wasm.instance.exports
+            init()
+            const memKey = new Uint8Array(memory.buffer, 16, 16)
+            memKey.set(u8Key)
+            const memData = new Uint8Array(memory.buffer, 0, 16)
+            for (let i = 0; i < 16; i++) {
+                memData[i] = u8Flag[i] ^ u8IV[i]
+            }
+            await log(`flag ^ iv => data: <a style="color: black;">${toHexString(memData)}</a>`)
+            await log('-------------------------')
+            for (let i = 0; i < 16; i++) {
+                memData[0] = 15 - i
+                let strDisplay = toHexString(memData)
+                await log(`      data[0]=0x${strDisplay.slice(0,2)}: <a style="color: green;">${strDisplay.slice(0,3)}</a>${strDisplay.slice(3)}`)
+                encrypt(0, 16)
+                strDisplay = toHexString(memData)
+                const boolIsZero = memData.every(i => 0 === i)
+                if (15 === i) {
+                    if (boolIsZero) {
+                        await log(`encrypt(data, key): <a style="color: green;">${strDisplay}</a>`)
+                        await log('-------------------------')
+                        await log('<a style="color: green;">flag correct!</a>')
+                    } else {
+                        await log(`encrypt(data, key): <a style="color: red;">${strDisplay}</a>`)
+                        await log('-------------------------')
+                        await log('<a style="color: red;">flag incorrect!</a>')
+                    }
+                } else {
+                    await log(`encrypt(data, key): ${strDisplay}`)
+                }
+            }
+        }
+    </script>
+</body>
+</html>
